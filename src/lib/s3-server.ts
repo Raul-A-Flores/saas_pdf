@@ -1,47 +1,48 @@
-import AWS from 'aws-sdk'
-import fs from 'fs';
+import { S3 } from "@aws-sdk/client-s3";
+import fs from "fs";
+import { createWriteStream } from 'fs'
 
-export async function downloadFromS3(file_key: string){
 
+
+
+export async function downloadFromS3(file_key: string): Promise<string> {
+  return new Promise(async (resolve, reject) => {
     try {
+      const s3 = new S3({
+        region: "us-west-1",
+        credentials: {
+          accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY!,
+        },
+      });
+      const params = {
+        Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
+        Key: file_key,
+      };
 
-        AWS.config.update({
 
-            accessKeyId: process.env.NEXT_PUBLIC_S3_ACCESS_KEY_ID!,
-            secretAccessKey: process.env.NEXT_PUBLIC_S3_SECRET_ACCESS_KEY!,
-        })
-        
-        const s3 = new AWS.S3({
-            params: {
-                Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
-
-            },
-            region: 'us-west-1'
-        });
-
-        const params = {
-            Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
-            Key: file_key
-        };
-
-        const obj = await s3.getObject(params).promise()
-
-        const s3Stream = s3.getObject({ 
-            Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!, 
-            Key: file_key }).createReadStream();
-
-        const file_name = `/tmp/pdf-${Date.now()}.pdf`
-        s3Stream.pipe(fs.createWriteStream(file_name.toString()));
-
-        console.log(obj, "OBHJEECTTT")
-        console.log(params, "PARRAMSSS")
-
-       // fs.writeFileSync(file_name, obj.Body as Buffer)
+      const obj = await s3.getObject(params);
+      const file_name =`tmp/pdf-${Date.now().toString()}.pdf`
       
-        return file_name;
+
+      if (obj.Body instanceof require("stream").Readable){
+        const file = fs.createWriteStream(file_name)
+        file.on("open", function (fd) {
+          // @ts-ignore
+          obj.Body?.pipe(file).on("finish", () => {
+            return resolve(file_name);
+          });
+        });
+      }
+
+
+
     } catch (error) {
-        
-        console.error(error)
-        return null
+      console.error(error);
+      reject(error);
+      return null;
     }
+  });
 }
+
+// downloadFromS3("uploads/1693568801787chongzhisheng_resume.pdf");
