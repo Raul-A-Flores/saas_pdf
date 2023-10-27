@@ -25,7 +25,7 @@ const MessageList = ({messages}:Props) => {
                     })}
                     >
                         <div className={
-                            cn('rounded-lg px-3',{
+                            cn('rounded-lg py-2 px-4',{
                                 'bg-blue-600 text-white': message.role === 'user',
                                 'bg-teal-300 text-black': message.role ==='assistant'
                             })
