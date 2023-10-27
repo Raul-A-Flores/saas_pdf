@@ -1,19 +1,39 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import { DrizzleChat } from '@/lib/db/schema'
 import Link from 'next/link'
 import { Button } from './ui/button'
 import { MessageCircle, PlusCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import axios from 'axios'
 
 type Props = {
 
     chats: DrizzleChat[],
     chatId: number,
 
-
 }
 
 const ChatSideBar = ({chats, chatId}: Props) => {
+
+    const [loading, setLoading] = useState(false)
+
+
+    const handleSubscription = async() =>{
+
+        try {
+            setLoading(true)
+            const response = await axios.get('/api/stripe')
+            
+            window.location.href = response.data.url
+        } catch (error) {
+            console.log(error)
+        } finally{
+            setLoading(false)
+        }
+    }
+
   return (
     <div className='w-full h-screen p-4 text-gray-200 bg-gray-900'>
         <Link href='/'>
@@ -37,7 +57,8 @@ const ChatSideBar = ({chats, chatId}: Props) => {
                 </Link>
             ))}
         </div>
-            <div className='flex items-center gap-2 text-sm text-slate-500 flex-wrap absolute bottom-8'>
+        <div className='absolute bottom-4 left-4'>
+            <div className='flex items-center gap-2 text-sm text-slate-500 flex-wrap '>
                 <Link href='/'>
                     Home
                 </Link>
@@ -45,6 +66,12 @@ const ChatSideBar = ({chats, chatId}: Props) => {
                     Source
                 </Link>
             </div>
+            <Button className='mt-2 text-white bg-slate-700 ' disabled={loading} onClick={handleSubscription}>
+                Upgrade to Pro
+
+            </Button>
+
+        </div>
     </div>
   )
 }

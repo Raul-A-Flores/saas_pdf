@@ -2,20 +2,31 @@
 
 import React, { useEffect } from 'react'
 import { Input } from './ui/input';
-import { useChat } from 'ai/react'
+import { Message, useChat } from 'ai/react'
 import { Button } from './ui/button';
 import { Send } from 'lucide-react';
 import MessageList from './MessageList';
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios';
 
 type Props = {chatId: number}
 
 const ChatComponent = ({chatId}: Props) => {
 
+    const {data} = useQuery({
+        queryKey: ['chat',chatId],
+        queryFn: async() =>{
+            const response = await axios.post<Message[]>('/api/get-messages', {chatId})
+            return response.data
+        }
+    })
+
     const { input, handleInputChange, handleSubmit, messages } = useChat({
         api: '/api/chat',
         body: {
             chatId
-        }
+        },
+        initialMessages: data || []
     })
     useEffect(() => {
         const messageContainer = document.getElementById("message-container");
