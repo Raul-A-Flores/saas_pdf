@@ -16,7 +16,6 @@ export async function uploadToS3(file:File){
 
         const file_key = 'uploads/' + Date.now().toString() + file.name.replace(' ', '-' )
 
-        console.log(file_key)
 
         const params = {
             Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,

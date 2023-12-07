@@ -27,9 +27,9 @@ export async function POST(req: Request){
         }
         const fileKey = _chats[0].fileKey;
         const lastMessage = messages[messages.length -1]
-        console.log(lastMessage)
+       // console.log(lastMessage)
         const context = await getContext(lastMessage.content, fileKey)
-        console.log(context)
+        //  console.log(context)
 
 
         const prompt = {
