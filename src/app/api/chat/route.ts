@@ -32,6 +32,8 @@ export async function POST(req: Request){
         //  console.log(context)
 
 
+
+        
         const prompt = {
             role: "system",
             content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
@@ -54,17 +56,15 @@ export async function POST(req: Request){
 
         const response = await openai.createChatCompletion({
 
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-3.5-turbo-0125',
             messages:[
-                prompt, ...messages.filter((message: Message) => messages.role === 'user')
+                prompt, ...messages.filter((message: Message) => message.role === 'user')
             ],
             stream: true
         })
 
         const stream = OpenAIStream(response,{
             onStart: async () =>{
-
-                // save user messages
                 await db.insert(_messages).values({
                     chatId, 
                     content: lastMessage.content, 
@@ -72,7 +72,8 @@ export async function POST(req: Request){
                 })
 
             }, 
-            //save ai message into db
+
+
             onCompletion: async (completion) =>{
 
                 await db.insert(_messages).values({
