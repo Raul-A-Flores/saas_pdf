@@ -10,7 +10,6 @@ import { Message } from 'ai/react'
 
 export const runtime = 'edge'
 
-//test 
 const config = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 
